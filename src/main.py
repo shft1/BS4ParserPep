@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from confings import configure_argument_parser, configure_logging
-from constants import BASE_DIR, MAIN_DOC_URL
+from constants import BASE_DIR, MAIN_DOC_URL, PEP_DOC_URL
 from outputs import control_output
 from utils import find_tag, get_response
 
@@ -97,10 +97,21 @@ def download(session):
     logging.info(f'Архив был загружен и сохранён: {archive_path}')
 
 
+def pep(session):
+    response = get_response(session, PEP_DOC_URL)
+    soup = BeautifulSoup(response.text, features='lxml')
+    num_index = find_tag(soup, 'section', {'id': 'numerical-index'})
+    tbody = find_tag(num_index, 'tbody')
+    peps_rows = tbody.find_all('tr')
+    count_pep = len(peps_rows)
+    print(count_pep)
+
+
 MODE_TO_FUNCTION = {
     'whats-new': whats_new,
     'latest-versions': latest_versions,
     'download': download,
+    'pep': pep,
 }
 
 
