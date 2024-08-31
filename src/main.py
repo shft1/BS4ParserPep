@@ -103,8 +103,17 @@ def pep(session):
     num_index = find_tag(soup, 'section', {'id': 'numerical-index'})
     tbody = find_tag(num_index, 'tbody')
     peps_rows = tbody.find_all('tr')
-    count_pep = len(peps_rows)
-    print(count_pep)
+    # count_pep = len(peps_rows)
+    for pep_row in peps_rows[:1]:
+        # status_in_table = find_tag(pep_row, 'abbr').text[1:]
+        url_tag = find_tag(pep_row, 'a', {'class': 'pep reference internal'})
+        pep_url = urljoin(PEP_DOC_URL, url_tag['href'])
+        response = get_response(session, pep_url)
+        soup = BeautifulSoup(response.text, features='lxml')
+        start_sibling = find_tag(soup, 'dt', {'class': 'field-odd'})
+        status = start_sibling.find_next_sibling(
+            'dd', class_='field-even').text
+        print(status)
 
 
 MODE_TO_FUNCTION = {
