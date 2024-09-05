@@ -1,6 +1,8 @@
 import csv
 import datetime as dt
 import logging
+from dataclasses import dataclass
+from typing import Any, List
 
 from prettytable import PrettyTable
 
@@ -8,13 +10,20 @@ from constants import BASE_DIR, DATETIME_FORMAT, ENCODING
 
 
 def control_output(results, cli_args):
-    output = cli_args.output
-    if output == 'file':
+    output_object = Output(results, cli_args, cli_args.output)
+    if output_object.output_args == 'file':
         file_output(results, cli_args)
-    elif output == 'pretty':
+    elif output_object.output_args == 'pretty':
         pretty_output(results)
     else:
         default_output(results)
+
+
+@dataclass
+class Output:
+    results: List
+    cli_args: Any
+    output_args: str | None
 
 
 def default_output(results):
