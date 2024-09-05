@@ -1,0 +1,14 @@
++-------------+----------+
+|    Status   | Quantity |
++-------------+----------+
+|    Active   |    33    |
+|  Withdrawn  |    61    |
+|  Superseded |    23    |
+|    Final    |   315    |
+|   Rejected  |   124    |
+|   Deferred  |    35    |
+|   Accepted  |    22    |
+|    Draft    |    34    |
+| Provisional |    3     |
+|    Total    |   651    |
++-------------+----------+

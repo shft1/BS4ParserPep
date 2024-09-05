@@ -1,16 +1,13 @@
-import datetime as dt
 import logging
 import re
 from urllib.parse import urljoin
 
 import requests_cache
 from bs4 import BeautifulSoup
-from prettytable import PrettyTable
 from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
-from constants import (BASE_DIR, DATETIME_FORMAT, EXPECTED_STATUS,
-                       MAIN_DOC_URL, PEP_DOC_URL)
+from constants import BASE_DIR, EXPECTED_STATUS, MAIN_DOC_URL, PEP_DOC_URL
 from outputs import control_output
 from utils import find_tag, get_response
 
@@ -89,7 +86,7 @@ def download(session):
     pdf_a4_tag = find_tag(
         table_tag, 'a', {'href': re.compile(r'.+pdf-a4\.zip$')})
     pdf_a_link = pdf_a4_tag['href']
-    archive_url = urljoin(downloads_url, pdf_a_link)
+    archive_url = urljoin(MAIN_DOC_URL, pdf_a_link)
 
     filename = archive_url.split('/')[-1]
     downloads_dir = BASE_DIR / 'downloads'
@@ -110,7 +107,9 @@ def pep(session):
     tbody = find_tag(num_index, 'tbody')
     peps_rows = tbody.find_all('tr')
     count_pep = len(peps_rows)
-    for pep_row in peps_rows:
+    rows_in_table = {'Status': 'Quantity'}
+    for pep_row in tqdm(peps_rows,
+                        desc='Парсинг PEP'):
         status_in_table = find_tag(pep_row, 'abbr').text[1:]
         url_tag = find_tag(pep_row, 'a', {'class': 'pep reference internal'})
         pep_url = urljoin(PEP_DOC_URL, url_tag['href'])
@@ -127,21 +126,11 @@ def pep(session):
                 f'Ожидаемые статусы: {expected_status}'
             )
             continue
-        ROWS_IN_TABLE[status] += 1
-    ROWS_IN_TABLE['Total'] = count_pep
-    rows = list(ROWS_IN_TABLE.items())
-    table = PrettyTable(rows[0])
-    table.add_rows(rows[1:])
-    results = table.get_string()
-
-    results_dir = BASE_DIR / 'results'
-    results_dir.mkdir(exist_ok=True)
-    now = dt.datetime.now()
-    now_formatted = now.strftime(DATETIME_FORMAT)
-    file_name = f'pep_{now_formatted}.csv'
-    file_path = results_dir / file_name
-    with open(file_path, 'w', encoding='utf-8') as csv_file:
-        csv_file.write(results)
+        rows_in_table.setdefault(status, 0)
+        rows_in_table[status] += 1
+    rows_in_table['Total'] = count_pep
+    results = list(rows_in_table.items())
+    return results
 
 
 MODE_TO_FUNCTION = {
@@ -149,21 +138,6 @@ MODE_TO_FUNCTION = {
     'latest-versions': latest_versions,
     'download': download,
     'pep': pep,
-}
-
-
-ROWS_IN_TABLE = {
-    'Статус': 'Количество',
-    'Accepted': 0,
-    'Active': 0,
-    'Draft': 0,
-    'Deferred': 0,
-    'Final': 0,
-    'Provisional': 0,
-    'Rejected': 0,
-    'Superseded': 0,
-    'Withdrawn': 0,
-    'Total': 0,
 }
 
 
