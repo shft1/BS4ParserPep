@@ -12,11 +12,11 @@ from constants import BASE_DIR, DATETIME_FORMAT, ENCODING
 def control_output(results, cli_args):
     output_object = Output(results, cli_args, cli_args.output)
     if output_object.output_args == 'file':
-        file_output(results, cli_args)
+        file_output(output_object.results, output_object.cli_args)
     elif output_object.output_args == 'pretty':
-        pretty_output(results)
+        pretty_output(output_object.results)
     else:
-        default_output(results)
+        default_output(output_object.results)
 
 
 @dataclass
