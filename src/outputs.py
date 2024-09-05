@@ -2,7 +2,7 @@ import csv
 import datetime as dt
 import logging
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any, List, Optional
 
 from prettytable import PrettyTable
 
@@ -23,7 +23,7 @@ def control_output(results, cli_args):
 class Output:
     results: List
     cli_args: Any
-    output_args: str | None
+    output_args: Optional[str]
 
 
 def default_output(results):
