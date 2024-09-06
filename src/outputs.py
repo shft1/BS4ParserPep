@@ -2,28 +2,26 @@ import csv
 import datetime as dt
 import logging
 from dataclasses import dataclass
-from typing import Any, List, Optional
 
 from prettytable import PrettyTable
 
 from constants import BASE_DIR, DATETIME_FORMAT, ENCODING
 
 
-def control_output(results, cli_args):
-    output_object = Output(results, cli_args, cli_args.output)
-    if output_object.output_args == 'file':
-        file_output(output_object.results, output_object.cli_args)
-    elif output_object.output_args == 'pretty':
-        pretty_output(output_object.results)
-    else:
-        default_output(output_object.results)
-
-
 @dataclass
-class Output:
-    results: List
-    cli_args: Any
-    output_args: Optional[str]
+class OutputTypes:
+    file: str = 'file'
+    pretty: str = 'pretty'
+
+
+def control_output(results, cli_args):
+    output = cli_args.output
+    if output == OutputTypes.file:
+        file_output(results, cli_args)
+    elif output == OutputTypes.pretty:
+        pretty_output(results)
+    else:
+        default_output(results)
 
 
 def default_output(results):
